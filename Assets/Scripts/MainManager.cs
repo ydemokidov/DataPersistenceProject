@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -11,6 +9,7 @@ public class MainManager : MonoBehaviour
     public Rigidbody Ball;
 
     public Text ScoreText;
+    [SerializeField] private Text highScoreText;
     public GameObject GameOverText;
     
     private bool m_Started = false;
@@ -36,6 +35,7 @@ public class MainManager : MonoBehaviour
                 brick.onDestroyed.AddListener(AddPoint);
             }
         }
+        UpdateHighScoreText();
     }
 
     private void Update()
@@ -71,6 +71,29 @@ public class MainManager : MonoBehaviour
     public void GameOver()
     {
         m_GameOver = true;
+        UpdateSessionHighScore();
+        UpdateHighScoreText();
         GameOverText.SetActive(true);
+    }
+
+    private void UpdateSessionHighScore()
+    {
+        if (PlayerSession.Instance != null)
+        {
+            if (m_Points > PlayerSession.Instance.highScore)
+            {
+                PlayerSession.Instance.highScore = m_Points;
+                PlayerSession.Instance.highScorePlayerName = PlayerSession.Instance.playerName;
+                PlayerSession.Instance.SaveHighScoreToFile();
+            }
+        }
+    }
+
+    private void UpdateHighScoreText()
+    {
+        if (PlayerSession.Instance!=null)
+        {
+            highScoreText.text = $"Best score: {PlayerSession.Instance.highScorePlayerName} : {PlayerSession.Instance.highScore}";
+        }
     }
 }
